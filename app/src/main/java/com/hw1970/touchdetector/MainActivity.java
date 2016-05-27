@@ -1,16 +1,11 @@
 package com.hw1970.touchdetector;
 
+import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -18,13 +13,13 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
-public class MainActivity extends AppCompatActivity {
+
+public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DragImage dragView = new DragImage(this);
-        setContentView(dragView);
+        setContentView(new DragView(this));
     }
 
     @Override
@@ -49,58 +44,41 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private class DragImage extends SurfaceView implements SurfaceHolder.Callback,View.OnTouchListener {
-        private Paint paint;
-        private Canvas canvas;
-        private SurfaceHolder sfh;
+    private class DragView extends SurfaceView implements View.OnTouchListener{
+        private Paint mPaint;
+        private Canvas mCanvas;
+        private SurfaceHolder mSfh;
 
-        public DragImage(Context context) {
+        public DragView(Context context) {
             super(context);
-            sfh=this.getHolder();
-            sfh.addCallback(this);
+            mPaint = new Paint();
+            mPaint.setColor(Color.WHITE);
+            mPaint.setTextSize(100);
+            mSfh = getHolder();
+            mCanvas = new Canvas();
             this.setOnTouchListener(this);
-            canvas = new Canvas();
-        }
-
-        @Override
-        public void surfaceCreated(SurfaceHolder holder) {
-            paint=new Paint();
-            paint.setColor(Color.WHITE);
-            paint.setTextSize(50);
-            paint.setAntiAlias(true);
-        }
-
-        @Override
-        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        }
-
-
-        @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
         }
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            canvas = sfh.lockCanvas();
-            canvas.drawColor(Color.BLACK);
-            int touchCount = event.getPointerCount();
-            switch (event.getAction()) {
+            mCanvas = mSfh.lockCanvas();
+            mCanvas.drawColor(Color.BLACK);
+            int action = event.getAction();
+            switch (action){
                 case MotionEvent.ACTION_UP:
-                    Log.i("Ritter", "ACTION_UP touchCount:" + touchCount);
                     break;
                 default:
-                    Log.i("Ritter", "DEFAULT touchCount:" + touchCount + ", motion:" + event.getAction());
-                    canvas.drawText("Total count:" + touchCount, 0, 60, this.paint);
+                    int touchCount = event.getPointerCount();
+                    mCanvas.drawText("Touch count:" + touchCount, 0 , 180, mPaint);
                     for (int i = 0; i < touchCount; i++) {
-                        int touchX = (int) event.getX(i);
-                        int touchY = (int) event.getY(i);
-                        canvas.drawText(1 + i + ":(" + touchX + "," + touchY + ")", touchX - 50, touchY - 100, this.paint);
+                        int x = (int) event.getX(i);
+                        int y = (int) event.getY(i);
+                        mCanvas.drawText(1 + i + ":(" + x + ":" +y + ")", x - 100 , y - 180, mPaint);
                     }
                     break;
             }
-            sfh.unlockCanvasAndPost(canvas);
+            mSfh.unlockCanvasAndPost(mCanvas);
             return true;
         }
-
     }
 }
